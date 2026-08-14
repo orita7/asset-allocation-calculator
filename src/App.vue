@@ -1,5 +1,5 @@
 <script setup></script>
 
 <template>
-  <h1>Asset Allocation Calculator</h1>
+  <h1>CoinSplit</h1>
 </template>
