@@ -1,4 +1,5 @@
 export const config = {
+  DEFAULT_LOCALE: "en-US",
   DEFAULT_BASE_CURRENCY: "USD",
   DEFAULT_ASSETS: ["BTC", "ETH"],
   DEFAULT_SPLIT_PERCENT: 70,
