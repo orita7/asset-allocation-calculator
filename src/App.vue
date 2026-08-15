@@ -5,6 +5,7 @@ import { calculateAllocation } from "./lib/allocation";
 import { fakeRates } from "./lib/fakeRates";
 import { AppState } from "./lib/appState";
 import AllocationCard from "./components/AllocationCard.vue";
+import AmountCard from "./components/AmountCard.vue";
 
 const isDev = import.meta.env.DEV;
 
@@ -23,21 +24,22 @@ const { rates } = useExchangeRates();
 // DEV override; Phase 4 replaces this with a computed derived from rates/isLoading/error.
 const appState = ref(AppState.READY);
 
-const splitPercent = config.DEFAULT_SPLIT_PERCENT;
-const otherPercent = 100 - splitPercent;
+const amount = ref(config.DEFAULT_AMOUNT);
+const splitPercent = ref(config.DEFAULT_SPLIT_PERCENT);
+const otherPercent = computed(() => 100 - splitPercent.value);
 
 const allocationA = computed(() =>
   calculateAllocation({
-    amount: config.DEFAULT_AMOUNT,
-    percent: splitPercent,
+    amount: amount.value,
+    percent: splitPercent.value,
     assetCode: config.DEFAULT_ASSETS[0],
     rates: rates.value,
   }),
 );
 const allocationB = computed(() =>
   calculateAllocation({
-    amount: config.DEFAULT_AMOUNT,
-    percent: otherPercent,
+    amount: amount.value,
+    percent: otherPercent.value,
     assetCode: config.DEFAULT_ASSETS[1],
     rates: rates.value,
   }),
@@ -64,6 +66,17 @@ const allocationB = computed(() =>
       </select>
 
       <h1 class="calculator__headline">Build your crypto <em>allocation.</em></h1>
+
+      <AmountCard
+        v-model:amount="amount"
+        v-model:split-percent="splitPercent"
+        :currency="config.DEFAULT_BASE_CURRENCY"
+        :asset-a="config.DEFAULT_ASSETS[0]"
+        :asset-b="config.DEFAULT_ASSETS[1]"
+        :allocated-a="allocationA.allocated"
+        :allocated-b="allocationB.allocated"
+      />
+
       <div class="calculator__results">
         <AllocationCard
           variant="asset-a"
