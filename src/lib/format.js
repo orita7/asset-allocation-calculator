@@ -9,10 +9,31 @@ export function formatBaseAmount(amount, currencyCode) {
   }).format(amount);
 }
 
-export function formatQuantity(quantity, assetCode) {
+export function formatQuantity(quantity) {
   if (quantity === null) return "N/A";
-  const formatted = new Intl.NumberFormat(config.DEFAULT_LOCALE, {
+  return new Intl.NumberFormat(config.DEFAULT_LOCALE, {
     maximumSignificantDigits: 6,
   }).format(quantity);
-  return `${formatted} ${assetCode}`;
+}
+
+export function formatUnitPrice(rate) {
+  if (rate === null) return "N/A";
+  return formatBaseAmount(1 / rate);
+}
+
+export function currencySymbol(currencyCode) {
+  const currency = currencyCode || config.DEFAULT_BASE_CURRENCY;
+  try {
+    return (
+      new Intl.NumberFormat(config.DEFAULT_LOCALE, {
+        style: "currency",
+        currency,
+        currencyDisplay: "narrowSymbol",
+      })
+        .formatToParts(0)
+        .find((p) => p.type === "currency")?.value ?? currency
+    );
+  } catch {
+    return currency;
+  }
 }
