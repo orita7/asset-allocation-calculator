@@ -2,28 +2,30 @@
 import { ref, computed } from "vue";
 import { config } from "./config";
 import { calculateAllocation } from "./lib/allocation";
-import { fakeRates } from "./lib/fakeRates";
+import { useExchangeRates } from "./composables/useExchangeRates";
 import { AppState } from "./lib/appState";
 import AllocationCard from "./components/AllocationCard.vue";
 import AmountCard from "./components/AmountCard.vue";
 import StatusBar from "./components/StatusBar.vue";
 
 const isDev = import.meta.env.DEV;
+// Flip to true to bring back the state-override select for debugging.
+const showDevOverride = false;
 
-// Locks the shape useExchangeRates will have in Phase 4 (real fetch + refresh).
-function useExchangeRates() {
-  const rates = ref(fakeRates.data.rates);
-  const fetchedAt = ref(Date.now());
-  const isLoading = ref(false);
-  const error = ref(null);
-  const refresh = () => {};
-  return { rates, fetchedAt, isLoading, error, refresh };
-}
+const { rates, fetchedAt, isLoading, error, isStale, refresh } = useExchangeRates();
 
-const { rates, refresh } = useExchangeRates();
+const realAppState = computed(() => {
+  if (isLoading.value) return rates.value ? AppState.REFRESHING : AppState.LOADING;
+  if (!rates.value) return error.value ? AppState.ERROR_EMPTY : AppState.LOADING;
+  if (error.value) return AppState.ERROR_STALE;
+  if (isStale.value) return AppState.STALE;
+  return AppState.READY;
+});
 
-// DEV override; Phase 4 replaces this with a computed derived from rates/isLoading/error.
-const appState = ref(AppState.READY);
+// DEV override wins over the real state when set, so every state stays previewable
+// without needing real network conditions to reach it.
+const devOverride = ref(null);
+const appState = computed(() => devOverride.value ?? realAppState.value);
 
 const amount = ref(config.DEFAULT_AMOUNT);
 const splitPercent = ref(config.DEFAULT_SPLIT_PERCENT);
@@ -56,11 +58,12 @@ const allocationB = computed(() =>
       </header>
 
       <select
-        v-if="isDev"
-        v-model="appState"
+        v-if="isDev && showDevOverride"
+        v-model="devOverride"
         class="dev-override"
         aria-label="Dev: app state override"
       >
+        <option :value="null">Auto</option>
         <option v-for="value in Object.values(AppState)" :key="value" :value="value">
           {{ value }}
         </option>
@@ -99,7 +102,7 @@ const allocationB = computed(() =>
         />
       </div>
 
-      <StatusBar :status="appState" @refresh="refresh" />
+      <StatusBar :status="appState" :fetched-at="fetchedAt" @refresh="refresh" />
     </section>
   </main>
 </template>
@@ -113,10 +116,11 @@ const allocationB = computed(() =>
 }
 
 .calculator {
+  --calculator-padding-x: clamp(20px, 4vw, 44px);
+  --calculator-padding-bottom: clamp(24px, 3vw, 30px);
   max-width: 1000px;
   width: 100%;
   border-radius: var(--radius-xl);
-  min-height: 100vh;
   background: linear-gradient(
     135deg,
     var(--color-page-start) 0%,
@@ -127,7 +131,7 @@ const allocationB = computed(() =>
   box-shadow: var(--shadow-panel);
   display: flex;
   flex-direction: column;
-  padding: clamp(24px, 4vw, 34px) clamp(20px, 4vw, 44px) clamp(24px, 3vw, 30px);
+  padding: clamp(24px, 4vw, 34px) var(--calculator-padding-x) var(--calculator-padding-bottom);
 }
 
 .calculator__header {
@@ -175,12 +179,10 @@ const allocationB = computed(() =>
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 @media (max-width: 720px) {
-  .calculator {
-    min-height: 100dvh;
-  }
   .calculator__assets,
   .calculator__results {
     grid-template-columns: 1fr;

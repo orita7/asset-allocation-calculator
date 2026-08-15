@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  /** Dashed border — used for last-known/stale data. */
+  /** Dimmed + dashed border — used for last-known/stale data. */
   provisional: { type: Boolean, default: false },
   as: { type: String, default: "div" },
 });
@@ -25,5 +25,6 @@ defineProps({
 
 .base-card--provisional {
   border-style: dashed;
+  opacity: 0.6;
 }
 </style>

@@ -1,4 +1,5 @@
 export const config = {
+  COINBASE_EXCHANGE_RATES_URL: "https://api.coinbase.com/v2/exchange-rates",
   DEFAULT_LOCALE: "en-US",
   DEFAULT_BASE_CURRENCY: "USD",
   DEFAULT_ASSETS: ["BTC", "ETH"],

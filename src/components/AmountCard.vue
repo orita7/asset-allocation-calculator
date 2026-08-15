@@ -45,6 +45,10 @@ const splitPercentModel = computed({
   set: (value) => emit("update:splitPercent", value),
 });
 
+const splitValueText = computed(
+  () => `${props.splitPercent}% ${props.assetA}, ${otherPercent.value}% ${props.assetB}`,
+);
+
 function formatAmount(value) {
   return new Intl.NumberFormat(config.DEFAULT_LOCALE, { maximumFractionDigits: 2 }).format(value);
 }
@@ -52,17 +56,28 @@ function formatAmount(value) {
 const amountInput = ref(formatAmount(props.amount));
 
 function handleAmountInput(event) {
-  const cleaned = event.target.value.replace(/[^\d.]/g, "");
-  const [whole = "", ...rest] = cleaned.split(".");
-  const fraction = rest.join("");
-  const normalized = rest.length ? `${whole}.${fraction}` : whole;
+  // Strip a leading currency symbol and grouping commas, then take only the
+  // leading numeric run — stops at "1e6" instead of splicing it into "16".
+  const symbol = currencySymbol(props.currency);
+  const withoutSymbol = event.target.value.startsWith(symbol)
+    ? event.target.value.slice(symbol.length)
+    : event.target.value;
+  const withoutCommas = withoutSymbol.replace(/,/g, "");
+  const normalized = withoutCommas.match(/^\d*\.?\d*/)[0];
 
+  // Empty is treated as a real, valid $0 — same as a deliberate 0% split elsewhere
+  // in this app — not an error state, so there's nothing to mark invalid.
   const number = Number(normalized);
   emit("update:amount", Number.isFinite(number) ? number : 0);
 
   // Stay raw for the whole typing session — comma grouping only applies on blur,
   // otherwise inserting a comma mid-number resets the caret to the end.
   amountInput.value = normalized;
+  // Force the DOM too: if a truncated character leaves normalized identical to the
+  // previous value (e.g. typing "500a" truncates back to "500"), the ref assignment
+  // above is a no-op and Vue never re-syncs — the raw, uncorrected text would stay
+  // on screen otherwise.
+  event.target.value = normalized;
 }
 
 function handleAmountBlur() {
@@ -112,6 +127,7 @@ function handleAmountBlur() {
       type="range"
       min="0"
       max="100"
+      :aria-valuetext="splitValueText"
       class="amount-card__slider"
       :style="{ '--split-percent': `${splitPercent}%` }"
     />

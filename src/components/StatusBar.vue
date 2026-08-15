@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { AppState } from "../lib/appState";
+import { formatRelativeTime } from "../lib/format";
 
 const props = defineProps({
   status: {
@@ -8,20 +9,42 @@ const props = defineProps({
     required: true,
     validator: (value) => Object.values(AppState).includes(value),
   },
+  fetchedAt: {
+    type: Number,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["refresh"]);
 
+const now = ref(Date.now());
+let intervalId = null;
+
+onMounted(() => {
+  intervalId = setInterval(() => {
+    now.value = Date.now();
+  }, 10_000);
+});
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
+
+const relativeTime = computed(() => formatRelativeTime(props.fetchedAt, now.value));
+
 const STATUS_CONFIG = {
-  [AppState.LOADING]: { text: "Fetching live rates…", tone: "loading" },
-  [AppState.READY]: { text: "Live prices · just updated", tone: "ok" },
-  [AppState.REFRESHING]: { text: "Updating…", tone: "ok" },
-  [AppState.STALE]: { text: "Last known prices", tone: "stale" },
-  [AppState.ERROR_STALE]: { text: "Couldn't refresh — showing last known prices", tone: "error" },
-  [AppState.ERROR_EMPTY]: { text: "Couldn’t load live rates", tone: "error" },
+  [AppState.LOADING]: { text: () => "Fetching live rates…", tone: "loading" },
+  [AppState.READY]: { text: (rel) => `Live prices · updated ${rel}`, tone: "ok" },
+  [AppState.REFRESHING]: { text: () => "Updating…", tone: "ok" },
+  [AppState.STALE]: { text: (rel) => `Last known prices from ${rel}`, tone: "stale" },
+  [AppState.ERROR_STALE]: {
+    text: (rel) => `Couldn't refresh — showing prices from ${rel}`,
+    tone: "error",
+  },
+  [AppState.ERROR_EMPTY]: { text: () => "Couldn't load live rates", tone: "error" },
 };
 
-const statusText = computed(() => STATUS_CONFIG[props.status].text);
+const statusText = computed(() => STATUS_CONFIG[props.status].text(relativeTime.value));
 const statusTone = computed(() => STATUS_CONFIG[props.status].tone);
 const refreshLabel = computed(() =>
   props.status === AppState.ERROR_EMPTY ? "Retry" : "Refresh quote",
@@ -60,9 +83,11 @@ const isRefreshDisabled = computed(
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-top: auto;
-  padding-top: var(--space-4);
+  margin: auto calc(-1 * var(--calculator-padding-x)) calc(-1 * var(--calculator-padding-bottom));
+  padding: var(--space-4) var(--calculator-padding-x) var(--calculator-padding-bottom);
   border-top: 1px solid var(--color-line);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  background: var(--color-surface-glass);
   font-size: var(--font-size-xs);
   font-weight: 700;
   letter-spacing: var(--letter-spacing-label);
