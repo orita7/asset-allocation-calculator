@@ -17,6 +17,7 @@ npm run dev
 - `npm run dev` — dev server with hot reload
 - `npm run build` — production build to `dist/`
 - `npm run preview` — serve the production build
+- `npm test` — unit tests for allocation math, Coinbase fetch handling, and formatters
 - `npm run lint` / `npm run format:check` — same checks CI would run
 
 ## What it does

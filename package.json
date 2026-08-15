@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "husky",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -23,6 +25,7 @@
     "eslint-plugin-vue": "^10.10.0",
     "husky": "^9.1.7",
     "prettier": "^3.9.6",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   }
 }
