@@ -6,6 +6,7 @@ import { fakeRates } from "./lib/fakeRates";
 import { AppState } from "./lib/appState";
 import AllocationCard from "./components/AllocationCard.vue";
 import AmountCard from "./components/AmountCard.vue";
+import StatusBar from "./components/StatusBar.vue";
 
 const isDev = import.meta.env.DEV;
 
@@ -19,7 +20,7 @@ function useExchangeRates() {
   return { rates, fetchedAt, isLoading, error, refresh };
 }
 
-const { rates } = useExchangeRates();
+const { rates, refresh } = useExchangeRates();
 
 // DEV override; Phase 4 replaces this with a computed derived from rates/isLoading/error.
 const appState = ref(AppState.READY);
@@ -97,6 +98,8 @@ const allocationB = computed(() =>
           :rate="allocationB.rate"
         />
       </div>
+
+      <StatusBar :status="appState" @refresh="refresh" />
     </section>
   </main>
 </template>
