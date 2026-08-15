@@ -99,6 +99,8 @@ const isRefreshDisabled = computed(
   align-items: center;
   gap: var(--space-2);
   margin: 0;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .status-bar__dot {
@@ -123,6 +125,7 @@ const isRefreshDisabled = computed(
 
 .status-bar__actions {
   display: flex;
+  flex-shrink: 0;
   gap: var(--space-4);
 }
 
