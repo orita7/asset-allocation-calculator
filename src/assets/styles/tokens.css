@@ -11,24 +11,27 @@
   --color-page-end: #33204d;
   /* Surface */
   --color-surface: #101b27;
+  --color-surface-a: rgba(10, 26, 42, 0.55);
+  --color-surface-b: rgba(48, 26, 64, 0.5);
   --color-surface-glass: #ffffff12;
   --color-input-bg: #0e1a26;
   --color-popover-bg: #131c28;
   --color-skeleton: #222b37;
+  --color-on-accent: #0b1420;
   /* Text */
   --color-text: #eef4f9;
   --color-text-accent: #7fb4d8;
   --color-text-dim: #b7c9da;
   --color-text-muted: #c1c7ce;
 
-  /* Slot 1 */
-  --color-slot-1: #9dccef;
-  --color-slot-1-stroke: #d3e6ed;
-  --color-slot-1-status: #4b92bf;
-  /* Slot 2 */
-  --color-slot-2: #e5bbe9;
-  --color-slot-2-stroke: #e2c2ec;
-  --color-slot-2-status: #a56db5;
+  /* Asset A */
+  --color-asset-a: #9dccef;
+  --color-asset-a-stroke: #d3e6ed;
+  --color-asset-a-status: #4b92bf;
+  /* Asset B */
+  --color-asset-b: #e5bbe9;
+  --color-asset-b-stroke: #e2c2ec;
+  --color-asset-b-status: #a56db5;
   /* Status */
   --color-live: #9dccef;
   --color-focus: #9dccef;
@@ -38,6 +41,7 @@
 
   /* Borders */
   --color-border: #c0dce8;
+  --color-line: rgba(255, 255, 255, 0.14);
   --color-divider: #bbcfdb88;
 
   /* Typography */
@@ -47,6 +51,7 @@
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-base: 1rem; /* 16px */
+  --font-size-md: 1.25rem; /* 20px */
   --font-size-lg: 2rem; /* 32px */
   --font-size-xl: 3rem; /* 48px */
   --letter-spacing-label: 0.12em;
@@ -57,6 +62,7 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
 

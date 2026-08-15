@@ -1,5 +1,25 @@
 <script setup>
 import { config } from "./config";
+import { calculateAllocation } from "./lib/allocation";
+import { fakeRates } from "./lib/fakeRates";
+import { AppState } from "./lib/appState";
+import AllocationCard from "./components/AllocationCard.vue";
+
+const splitPercent = config.DEFAULT_SPLIT_PERCENT;
+const otherPercent = 100 - splitPercent;
+
+const allocationA = calculateAllocation({
+  amount: config.DEFAULT_AMOUNT,
+  percent: splitPercent,
+  assetCode: config.DEFAULT_ASSETS[0],
+  rates: fakeRates.data.rates,
+});
+const allocationB = calculateAllocation({
+  amount: config.DEFAULT_AMOUNT,
+  percent: otherPercent,
+  assetCode: config.DEFAULT_ASSETS[1],
+  rates: fakeRates.data.rates,
+});
 </script>
 
 <template>
@@ -7,12 +27,29 @@ import { config } from "./config";
     <section class="calculator">
       <header class="calculator__header">
         <span class="calculator__title">CoinSplit</span>
-        <span class="calculator__strategy"
-          >{{ config.DEFAULT_SPLIT_PERCENT }} /
-          {{ 100 - config.DEFAULT_SPLIT_PERCENT }} strategy</span
-        >
+        <span class="calculator__strategy">{{ splitPercent }} / {{ otherPercent }} strategy</span>
       </header>
       <h1 class="calculator__headline">Build your crypto <em>allocation.</em></h1>
+      <div class="calculator__results">
+        <AllocationCard
+          variant="asset-a"
+          :status="AppState.READY"
+          :asset-code="allocationA.assetCode"
+          :percent="allocationA.percent"
+          :allocated="allocationA.allocated"
+          :quantity="allocationA.quantity"
+          :rate="allocationA.rate"
+        />
+        <AllocationCard
+          variant="asset-b"
+          :status="AppState.READY"
+          :asset-code="allocationB.assetCode"
+          :percent="allocationB.percent"
+          :allocated="allocationB.allocated"
+          :quantity="allocationB.quantity"
+          :rate="allocationB.rate"
+        />
+      </div>
     </section>
   </main>
 </template>
@@ -29,7 +66,7 @@ import { config } from "./config";
   max-width: 1000px;
   width: 100%;
   border-radius: var(--radius-xl);
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(
     135deg,
     var(--color-page-start) 0%,
@@ -77,5 +114,22 @@ import { config } from "./config";
 .calculator__headline em {
   font-style: normal;
   color: var(--color-text-accent);
+}
+
+.calculator__results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 720px) {
+  .calculator {
+    min-height: 100dvh;
+  }
+  .calculator__assets,
+  .calculator__results {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
 }
 </style>
