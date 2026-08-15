@@ -21,6 +21,14 @@ export function formatUnitPrice(rate) {
   return formatBaseAmount(1 / rate);
 }
 
+const MS_PER_MINUTE = 60_000;
+
+export function formatRelativeTime(then, now) {
+  if (then === null) return "";
+  const minutes = Math.floor((now - then) / MS_PER_MINUTE);
+  return minutes < 1 ? "just now" : `${minutes} min ago`;
+}
+
 export function currencySymbol(currencyCode) {
   const currency = currencyCode || config.DEFAULT_BASE_CURRENCY;
   try {

@@ -1,5 +1,5 @@
 // A rate of 0 is unusable: it yields a zero quantity and an infinite inverse price.
-function parseRate(value) {
+export function parseRate(value) {
   const rate = Number(value);
   return Number.isFinite(rate) && rate > 0 ? rate : null;
 }
